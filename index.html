@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supply Bridge - Interactive Operations Portal</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Navigation Bar with Click-Toggled Dropdown Menu -->
+    <header>
+        <a href="#" class="logo">SupplyBridge*</a>
+
+        <nav>
+            <ul class="nav-links">
+                <li class="nav-item">
+                    <button type="button" id="plans-btn" class="dropdown-toggle" onclick="toggleDropdown()">
+                        Plans &#x25BE;
+                    </button>
+                    <ul id="plans-dropdown" class="dropdown-menu">
+                        <li><a href="#">Freelancer</a></li>
+                        <li><a href="#">Startup</a></li>
+                        <li><a href="#">Enterprise</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a href="#inquiry-form">Contact</a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="auth-buttons">
+            <button type="button" class="btn-modal" onclick="openModal()">Shipment Status</button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-container">
+        <h1>Supply Bridge Dispatch &amp; Verification</h1>
+        <p>Manage shipment alerts, check live warehouse sync timers, or submit a priority freight inquiry.</p>
+
+        <!-- Live Timer Controls (Demonstrates setInterval, clearInterval, setTimeout, clearTimeout) -->
+        <section class="timer-panel">
+            <div class="timer-card">
+                <h3>Warehouse Sync Monitor</h3>
+                <p>Active Sync Uptime: <strong id="sync-counter">0</strong> seconds</p>
+                <div class="btn-group">
+                    <button type="button" onclick="startSync()">Start Sync</button>
+                    <button type="button" class="btn-secondary" onclick="stopSync()">Pause Sync</button>
+                </div>
+            </div>
+
+            <div class="timer-card">
+                <h3>Auto-Dispatch Alert (5s Delay)</h3>
+                <p id="dispatch-status">No scheduled alert active.</p>
+                <div class="btn-group">
+                    <button type="button" onclick="scheduleAlert()">Schedule Alert</button>
+                    <button type="button" class="btn-secondary" onclick="cancelAlert()">Cancel Alert</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Form with DOM Validation -->
+        <section class="form-section">
+            <h2>Priority Freight Inquiry</h2>
+            <form id="inquiry-form">
+                <div class="form-group">
+                    <label for="client-name">Company / Contact Name:</label>
+                    <input type="text" id="client-name" placeholder="Enter your name">
+                </div>
+
+                <div class="form-group">
+                    <label for="tracking-id">Shipment ID (e.g., SB-1024):</label>
+                    <input type="text" id="tracking-id" placeholder="Enter Shipment ID">
+                </div>
+
+                <button type="submit" class="btn-submit">Validate &amp; Submit</button>
+            </form>
+            <p id="form-feedback" class="feedback-msg"></p>
+        </section>
+    </main>
+
+    <!-- Interactive Modal -->
+    <div id="status-modal" class="modal-backdrop">
+        <div class="modal-box">
+            <h3>Live Fleet Summary</h3>
+            <p><strong>Active Hubs:</strong> 24 Regional Centers</p>
+            <p><strong>Current Network Load:</strong> Optimal (99.4% On-Time)</p>
+            <button type="button" class="btn-submit" onclick="closeModal()">Close Window</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 Supply Bridge. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // 1. Accessing DOM Elements via IDs & querySelector
+        const dropdownMenu = document.querySelector("#plans-dropdown");
+        const modal = document.querySelector("#status-modal");
+        const syncCounterEl = document.getElementById("sync-counter");
+        const dispatchStatusEl = document.getElementById("dispatch-status");
+        const inquiryForm = document.querySelector("#inquiry-form");
+        const formFeedback = document.querySelector("#form-feedback");
+
+        // 2. Dropdown Menu Visibility Toggle (onclick)
+        function toggleDropdown() {
+            dropdownMenu.classList.toggle("show");
+        }
+
+        // 3. Modal Display Manipulation (onclick)
+        function openModal() {
+            modal.style.display = "flex";
+        }
+
+        function closeModal() {
+            modal.style.display = "none";
+        }
+
+        // 4. setInterval() & clearInterval() for Live Warehouse Sync
+        let syncSeconds = 0;
+        let syncIntervalId = null;
+
+        function startSync() {
+            if (syncIntervalId !== null) return;
+            syncIntervalId = setInterval(() => {
+                syncSeconds++;
+                syncCounterEl.textContent = syncSeconds;
+            }, 1000);
+        }
+
+        function stopSync() {
+            clearInterval(syncIntervalId);
+            syncIntervalId = null;
+        }
+
+        // 5. setTimeout() & clearTimeout() for Delayed Dispatch Alert
+        let alertTimeoutId = null;
+
+        function scheduleAlert() {
+            clearTimeout(alertTimeoutId);
+            dispatchStatusEl.textContent = "Dispatch alert scheduled in 5 seconds...";
+            alertTimeoutId = setTimeout(() => {
+                dispatchStatusEl.textContent = "ALERT SENT: Freight convoy cleared for departure!";
+            }, 5000);
+        }
+
+        function cancelAlert() {
+            clearTimeout(alertTimeoutId);
+            alertTimeoutId = null;
+            dispatchStatusEl.textContent = "Scheduled dispatch alert cancelled.";
+        }
+
+        // 6. Interactive Form Validation using querySelector
+        inquiryForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const nameValue = document.querySelector("#client-name").value.trim();
+            const trackingValue = document.querySelector("#tracking-id").value.trim();
+
+            if (nameValue === "" || trackingValue === "") {
+                formFeedback.textContent = "Error: Please enter both your Name and Shipment ID.";
+                formFeedback.style.color = "#c0392b";
+            } else {
+                formFeedback.textContent = `Success: Inquiry logged for ${nameValue} (Shipment ${trackingValue}).`;
+                formFeedback.style.color = "#1e7e34";
+                inquiryForm.reset();
+            }
+        });
+    </script>
+
+</body>
+</html>
